@@ -1,0 +1,50 @@
+---
+- name: Enable date and time logging in Bash history
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create histtimeformat.sh in /etc/profile.d
+      copy:
+        dest: /etc/profile.d/histtimeformat.sh
+        content: |
+          #!/bin/bash
+          export HISTTIMEFORMAT="%F %T "
+        owner: root
+        group: root
+        mode: '0644'
+
+- name: Install Fail2Ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Configure Fail2Ban for SSH
+  copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [sshd]
+      enabled = true
+      port    = ssh
+      logpath = %(sshd_log)s
+      maxretry = 5
+  notify: Restart Fail2Ban
+
+handlers:
+  - name: Restart Fail2Ban
+    service:
+      name: fail2ban
+      state: restarted
+
+- name: Allow SSH connections
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Deny all other incoming connections
+  ufw:
+    default: deny
+    direction: incoming
+
+- name: Enable UFW
+  ufw:
+    state: enabled
