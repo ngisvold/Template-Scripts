@@ -14,3 +14,28 @@
 - name: Enable UFW
   ufw:
     state: enabled
+
+#Install and Configure Fail2Ban:
+#Protect against brute-force attacks by monitoring log files and banning IPs with multiple failed login attempts.
+
+- name: Install Fail2Ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Configure Fail2Ban for SSH
+  copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [sshd]
+      enabled = true
+      port    = ssh
+      logpath = %(sshd_log)s
+      maxretry = 5
+  notify: Restart Fail2Ban
+
+handlers:
+  - name: Restart Fail2Ban
+    service:
+      name: fail2ban
+      state: restarted
