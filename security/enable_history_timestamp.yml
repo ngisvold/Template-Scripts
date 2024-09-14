@@ -1,0 +1,16 @@
+#Timestamp for log analysis.
+
+---
+- name: Enable date and time logging in Bash history
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create histtimeformat.sh in /etc/profile.d
+      copy:
+        dest: /etc/profile.d/histtimeformat.sh
+        content: |
+          #!/bin/bash
+          export HISTTIMEFORMAT="%F %T "
+        owner: root
+        group: root
+        mode: '0644'
