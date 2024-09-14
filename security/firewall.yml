@@ -1,0 +1,16 @@
+# Open Ports / Services Here:
+- name: Allow SSH connections
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+#Deny everything else:
+- name: Deny all other incoming connections
+  ufw:
+    default: deny
+    direction: incoming
+
+#Start Firewall
+- name: Enable UFW
+  ufw:
+    state: enabled
